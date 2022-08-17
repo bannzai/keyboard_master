@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
@@ -22,16 +24,21 @@ class Root extends StatefulWidget {
 
 class _RootState extends State<Root> {
   late FocusNode _node;
-  final game = KeyboardGame();
+  late FocusAttachment _nodeAttachment;
+  final stream = StreamController<RawKeyEvent>();
+  late KeyboardGame game = KeyboardGame(stream.stream);
 
   @override
   void initState() {
     super.initState();
     _node = FocusNode();
+    _nodeAttachment = _node.attach(context, onKey: _handleKeyPress);
   }
 
   @override
   Widget build(BuildContext context) {
+    _nodeAttachment.reparent();
+
     return MaterialApp(
       home: Scaffold(
         body: Stack(
@@ -53,6 +60,8 @@ class _RootState extends State<Root> {
   }
 
   KeyEventResult _handleKeyPress(FocusNode node, RawKeyEvent event) {
+    stream.sink.add(event);
+    debugPrint("_handleKeyPress");
     if (event is RawKeyDownEvent) {
       debugPrint(
           'Focus node ${node.debugLabel} got key event: ${event.logicalKey}');
@@ -72,8 +81,16 @@ class _RootState extends State<Root> {
 }
 
 class KeyboardGame extends FlameGame with KeyboardEvents {
+  final Stream<RawKeyEvent> stream;
+  late StreamSubscription subscription;
+
+  KeyboardGame(this.stream);
+
   @override
   Future<void> onLoad() async {
+    subscription = stream.listen((event) {
+      print(event);
+    });
     add(
       Player()
         ..position = size / 2
@@ -89,6 +106,7 @@ class KeyboardGame extends FlameGame with KeyboardEvents {
     RawKeyEvent event,
     Set<LogicalKeyboardKey> keysPressed,
   ) {
+    print("key pressed");
     final isKeyDown = event is RawKeyDownEvent;
 
     final isSpace = keysPressed.contains(LogicalKeyboardKey.space);
