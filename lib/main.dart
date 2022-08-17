@@ -10,16 +10,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Flame.device.setPortrait();
 
-  runApp(const MyGame());
-}
-
-class MyGame extends StatelessWidget {
-  const MyGame({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Root();
-  }
+  runApp(const Root());
 }
 
 class Root extends StatefulWidget {
@@ -31,30 +22,33 @@ class Root extends StatefulWidget {
 
 class _RootState extends State<Root> {
   late FocusNode _node;
-  late FocusAttachment _nodeAttachment;
+  final game = KeyboardGame();
 
   @override
   void initState() {
     super.initState();
     _node = FocusNode();
-    _node.addListener(() {
-      print("[DEBUG] changed");
-    });
-    _nodeAttachment = _node.attach(context, onKey: _handleKeyPress);
-  }
-
-  @override
-  void dispose() {
-    _node.dispose();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return GameWidget(
-      game: KeyboardGame(),
-      focusNode: _node,
-      autofocus: true,
+    return MaterialApp(
+      home: Scaffold(
+        body: Stack(
+          children: [
+            GameWidget(
+              game: game,
+            ),
+            Align(
+              alignment: Alignment.center,
+              child: Container(
+                color: Colors.yellow,
+                child: TextField(focusNode: _node, autofocus: true),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
