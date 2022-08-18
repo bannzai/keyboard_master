@@ -25,14 +25,28 @@ class Root extends StatefulWidget {
 class _RootState extends State<Root> {
   late FocusNode _node;
   late FocusAttachment _nodeAttachment;
-  final stream = StreamController<RawKeyEvent>();
+  final stream = StreamController<String>();
   late KeyboardGame game = KeyboardGame(stream.stream);
+  final TextEditingController _textEditingController = TextEditingController();
+
+  String latestString = "";
 
   @override
   void initState() {
     super.initState();
     _node = FocusNode();
     _nodeAttachment = _node.attach(context, onKey: _handleKeyPress);
+
+    _textEditingController.addListener(() {
+      if (latestString != _textEditingController.text) {
+        final diff = _textEditingController.text.length - latestString.length;
+        if (diff > 0) {
+          stream.sink.add(
+              _textEditingController.text.substring(latestString.length, diff));
+        }
+      }
+      latestString = _textEditingController.value.text;
+    });
   }
 
   @override
@@ -50,7 +64,12 @@ class _RootState extends State<Root> {
               alignment: Alignment.center,
               child: Container(
                 color: Colors.yellow,
-                child: TextField(focusNode: _node, autofocus: true),
+                child: TextField(
+                    controller: _textEditingController,
+                    focusNode: _node,
+                    autofocus: true,
+                    keyboardType: TextInputType.name,
+                    onChanged: (text) {}),
               ),
             ),
           ],
@@ -60,7 +79,6 @@ class _RootState extends State<Root> {
   }
 
   KeyEventResult _handleKeyPress(FocusNode node, RawKeyEvent event) {
-    stream.sink.add(event);
     debugPrint("_handleKeyPress");
     if (event is RawKeyDownEvent) {
       debugPrint(
@@ -81,7 +99,7 @@ class _RootState extends State<Root> {
 }
 
 class KeyboardGame extends FlameGame with KeyboardEvents {
-  final Stream<RawKeyEvent> stream;
+  final Stream<String> stream;
   late StreamSubscription subscription;
 
   KeyboardGame(this.stream);
