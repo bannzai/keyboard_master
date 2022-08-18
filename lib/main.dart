@@ -37,10 +37,9 @@ class _RootState extends State<Root> {
 
     _textEditingController.addListener(() {
       if (latestString != _textEditingController.text) {
-        final diff = _textEditingController.text.length - latestString.length;
-        if (diff > 0) {
-          stream.sink.add(
-              _textEditingController.text.substring(latestString.length, diff));
+        if (_textEditingController.text.length > latestString.length) {
+          stream.sink
+              .add(_textEditingController.text.substring(latestString.length));
         }
       }
       latestString = _textEditingController.value.text;
