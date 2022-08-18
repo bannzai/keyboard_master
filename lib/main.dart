@@ -25,7 +25,7 @@ class Root extends StatefulWidget {
 class _RootState extends State<Root> {
   late FocusNode _node;
   final stream = StreamController<String>();
-  late KeyboardGame game = KeyboardGame(stream.stream);
+  late KeyboardGame _game;
   final TextEditingController _textEditingController = TextEditingController();
 
   String latestString = "";
@@ -33,8 +33,8 @@ class _RootState extends State<Root> {
   @override
   void initState() {
     super.initState();
+    _game = KeyboardGame(stream.stream);
     _node = FocusNode();
-
     _textEditingController.addListener(() {
       if (latestString != _textEditingController.text) {
         if (_textEditingController.text.length > latestString.length) {
@@ -53,7 +53,7 @@ class _RootState extends State<Root> {
         body: Stack(
           children: [
             GameWidget(
-              game: game,
+              game: _game,
             ),
             Align(
               alignment: Alignment.center,
