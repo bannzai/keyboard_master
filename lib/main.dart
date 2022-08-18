@@ -72,25 +72,6 @@ class _RootState extends State<Root> {
       ),
     );
   }
-
-  KeyEventResult _handleKeyPress(FocusNode node, RawKeyEvent event) {
-    debugPrint("_handleKeyPress");
-    if (event is RawKeyDownEvent) {
-      debugPrint(
-          'Focus node ${node.debugLabel} got key event: ${event.logicalKey}');
-      if (event.logicalKey == LogicalKeyboardKey.keyR) {
-        debugPrint('Changing color to red.');
-        return KeyEventResult.handled;
-      } else if (event.logicalKey == LogicalKeyboardKey.keyG) {
-        debugPrint('Changing color to green.');
-        return KeyEventResult.handled;
-      } else if (event.logicalKey == LogicalKeyboardKey.keyB) {
-        debugPrint('Changing color to blue.');
-        return KeyEventResult.handled;
-      }
-    }
-    return KeyEventResult.ignored;
-  }
 }
 
 class KeyboardGame extends FlameGame with KeyboardEvents {
