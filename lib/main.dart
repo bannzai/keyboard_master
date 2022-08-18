@@ -74,7 +74,7 @@ class _RootState extends State<Root> {
   }
 }
 
-class KeyboardGame extends FlameGame with KeyboardEvents {
+class KeyboardGame extends FlameGame {
   final Stream<String> stream;
   late StreamSubscription subscription;
 
@@ -92,29 +92,6 @@ class KeyboardGame extends FlameGame with KeyboardEvents {
         ..height = 400
         ..anchor = Anchor.center,
     );
-  }
-
-  // ...
-  @override
-  KeyEventResult onKeyEvent(
-    RawKeyEvent event,
-    Set<LogicalKeyboardKey> keysPressed,
-  ) {
-    print("key pressed");
-    final isKeyDown = event is RawKeyDownEvent;
-
-    final isSpace = keysPressed.contains(LogicalKeyboardKey.space);
-
-    if (isSpace && isKeyDown) {
-      if (keysPressed.contains(LogicalKeyboardKey.altLeft) ||
-          keysPressed.contains(LogicalKeyboardKey.altRight)) {
-        print("left, right");
-      } else {
-        print("other");
-      }
-      return KeyEventResult.handled;
-    }
-    return KeyEventResult.ignored;
   }
 }
 
