@@ -24,7 +24,6 @@ class Root extends StatefulWidget {
 
 class _RootState extends State<Root> {
   late FocusNode _node;
-  late FocusAttachment _nodeAttachment;
   final stream = StreamController<String>();
   late KeyboardGame game = KeyboardGame(stream.stream);
   final TextEditingController _textEditingController = TextEditingController();
@@ -35,7 +34,6 @@ class _RootState extends State<Root> {
   void initState() {
     super.initState();
     _node = FocusNode();
-    _nodeAttachment = _node.attach(context, onKey: _handleKeyPress);
 
     _textEditingController.addListener(() {
       if (latestString != _textEditingController.text) {
@@ -51,8 +49,6 @@ class _RootState extends State<Root> {
 
   @override
   Widget build(BuildContext context) {
-    _nodeAttachment.reparent();
-
     return MaterialApp(
       home: Scaffold(
         body: Stack(
