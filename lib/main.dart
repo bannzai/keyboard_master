@@ -80,26 +80,45 @@ class KeyboardGame extends FlameGame {
 
   KeyboardGame(this.stream);
 
+  String text = "Hello, world";
+  late Player player = Player(text);
+
   @override
   Future<void> onLoad() async {
     subscription = stream.listen((event) {
-      print(event);
+      text += event;
     });
     add(
-      Player()
+      player
         ..position = size / 2
-        ..width = 50
-        ..height = 400
+        ..width = size[0]
+        ..height = size[1]
         ..anchor = Anchor.center,
     );
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+    player.text = text;
   }
 }
 
 class Player extends PositionComponent {
   static final _paint = Paint()..color = Colors.white;
+  final textPaint = TextPaint(style: const TextStyle(color: Colors.red));
+
+  String text;
+  Player(this.text);
 
   @override
   void render(Canvas canvas) {
     canvas.drawRect(size.toRect(), _paint);
+    textPaint.render(canvas, text, Vector2(20, 100));
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
   }
 }
