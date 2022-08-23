@@ -5,8 +5,20 @@ import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
+import 'package:flame/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+const words = [
+  "Dogs come when they're called; cats take a message and get back to you later",
+  "Books. Cats. Life is Good",
+  "Women and cats will do as they please, and men and dogs should relax and get used to the idea",
+  "In ancient times cats were worshipped as gods; they have not forgotten this",
+  "There are two means of refuge from the misery of life — music and cats",
+  "Cats are connoisseurs of comfort",
+  "If animals could speak, the dog would be a blundering outspoken fellow; but the cat would have the rare grace of never saying a word too much",
+  "What greater gift than the love of a cat"
+];
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -81,7 +93,11 @@ class KeyboardGame extends FlameGame {
   KeyboardGame(this.stream);
 
   String text = "Hello, world";
-  late Player player = Player(text);
+  late Player player = Player(text: text, subject: subject);
+  late MyTextBox textBox = MyTextBox(text: subject);
+  int index = 0;
+
+  String get subject => words[index];
 
   @override
   Future<void> onLoad() async {
@@ -95,12 +111,44 @@ class KeyboardGame extends FlameGame {
         ..height = size[1]
         ..anchor = Anchor.center,
     );
+    add(textBox
+      ..position = Vector2(size[0] / 2, 100)
+      ..width = size[0] - 40
+      ..height = 40
+      ..anchor = Anchor.center);
+
+    add(TimerComponent(
+      period: 10,
+      repeat: true,
+      onTick: () => index += 1,
+    ));
   }
 
   @override
   void update(double dt) {
     super.update(dt);
     player.text = text;
+    textBox.text = subject;
+  }
+}
+
+class MyTextBox extends TextBoxComponent {
+  MyTextBox({required String text})
+      : super(
+            text: text,
+            textRenderer:
+                TextPaint(style: TextStyle(color: BasicPalette.white.color)),
+            boxConfig: TextBoxConfig(timePerChar: 0.05));
+
+  final bgPaint = Paint()..color = Colors.white;
+  final borderPaint = Paint()..color = Colors.orange;
+
+  @override
+  void render(Canvas canvas) {
+    Rect rect = Rect.fromLTWH(0, 0, width, height);
+    canvas.drawRect(rect, bgPaint);
+    canvas.drawRect(rect.deflate(boxConfig.margins.top), borderPaint);
+    super.render(canvas);
   }
 }
 
@@ -109,11 +157,11 @@ class Player extends PositionComponent {
   final textPaint = TextPaint(style: const TextStyle(color: Colors.red));
 
   String text;
-  Player(this.text);
+  String subject;
+  Player({required this.text, required this.subject});
 
   @override
   void render(Canvas canvas) {
     canvas.drawRect(size.toRect(), _paint);
-    textPaint.render(canvas, text, Vector2(20, 100));
   }
 }
