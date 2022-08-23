@@ -116,9 +116,4 @@ class Player extends PositionComponent {
     canvas.drawRect(size.toRect(), _paint);
     textPaint.render(canvas, text, Vector2(20, 100));
   }
-
-  @override
-  void update(double dt) {
-    super.update(dt);
-  }
 }
