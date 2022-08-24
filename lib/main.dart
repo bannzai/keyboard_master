@@ -120,7 +120,7 @@ class KeyboardGame extends FlameGame {
     add(TimerComponent(
       period: 10,
       repeat: true,
-      onTick: () => index += 1,
+      onTick: () => index < words.length ? index += 1 : index = 0,
     ));
   }
 
@@ -140,13 +140,11 @@ class MyTextBox extends TextBoxComponent {
                 TextPaint(style: TextStyle(color: BasicPalette.white.color)),
             boxConfig: TextBoxConfig(timePerChar: 0.05));
 
-  final bgPaint = Paint()..color = Colors.white;
   final borderPaint = Paint()..color = Colors.orange;
 
   @override
   void render(Canvas canvas) {
     Rect rect = Rect.fromLTWH(0, 0, width, height);
-    canvas.drawRect(rect, bgPaint);
     canvas.drawRect(rect.deflate(boxConfig.margins.top), borderPaint);
     super.render(canvas);
   }
