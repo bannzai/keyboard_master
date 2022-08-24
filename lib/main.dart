@@ -120,7 +120,14 @@ class KeyboardGame extends FlameGame {
     add(TimerComponent(
       period: 10,
       repeat: true,
-      onTick: () => index < words.length - 1 ? index += 1 : index = 0,
+      onTick: () {
+        latestInputText = "";
+        if (index < words.length - 1) {
+          index += 1;
+        } else {
+          index = 0;
+        }
+      },
     ));
 
     return super.onLoad();
