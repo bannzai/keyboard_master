@@ -92,10 +92,9 @@ class KeyboardGame extends FlameGame {
 
   KeyboardGame(this.stream);
 
-  String latestText = "";
-  late Player player = Player(text: latestText, subject: subject);
+  String latestInputText = "";
+  late Player player = Player(text: latestInputText, subject: subject);
   late MyTextBox textBox = MyTextBox(text: subject);
-  late MyTextBox2 overlayBox = MyTextBox2(text: latestText);
   int index = 0;
 
   String get subject => words[index];
@@ -103,7 +102,7 @@ class KeyboardGame extends FlameGame {
   @override
   Future<void> onLoad() async {
     subscription = stream.listen((event) {
-      latestText += event;
+      latestInputText += event;
     });
     add(
       player
@@ -115,33 +114,27 @@ class KeyboardGame extends FlameGame {
     add(textBox
       ..position = Vector2(size[0] / 2, 100)
       ..width = size[0] - 40
-      ..height = 40
-      ..anchor = Anchor.center);
-
-    add(overlayBox
-      ..position = Vector2(size[0] / 2, 100)
-      ..width = size[0] - 40
-      ..height = 40
-      ..anchor = Anchor.center);
+      ..height = 200
+      ..anchor = Anchor.topCenter);
 
     add(TimerComponent(
       period: 10,
       repeat: true,
       onTick: () => index < words.length - 1 ? index += 1 : index = 0,
     ));
+
+    return super.onLoad();
   }
 
   @override
   void update(double dt) {
     super.update(dt);
-    player.text = latestText;
-    textBox.text = subject;
-
-    if (textBox.text.contains(latestText)) {
-      overlayBox.text = latestText;
-    } else {
-      latestText = overlayBox.text;
+    player.text = latestInputText;
+    if (textBox.text != subject) {
+      textBox.text = subject;
+      textBox.latestInputText = "";
     }
+    textBox.latestInputText = latestInputText;
   }
 }
 
@@ -151,15 +144,44 @@ class MyTextBox extends TextBoxComponent {
             text: text,
             textRenderer:
                 TextPaint(style: TextStyle(color: BasicPalette.white.color)),
-            boxConfig: TextBoxConfig(timePerChar: 0.05));
+            boxConfig: TextBoxConfig(timePerChar: 0.05),
+            align: Anchor.topLeft);
 
+  String latestInputText = "";
+  late String latestSubject = text;
+
+  late MyTextBox2 overlayBox = MyTextBox2(text: latestInputText);
   final borderPaint = Paint()..color = Colors.orange;
 
   @override
+  Future<void> onLoad() {
+    add(overlayBox
+      ..position = Vector2(0, 0)
+      ..width = width
+      ..height = height
+      ..anchor = Anchor.topLeft);
+
+    return super.onLoad();
+  }
+
+  @override
   void render(Canvas canvas) {
-    Rect rect = Rect.fromLTWH(0, 0, width, height);
-    canvas.drawRect(rect.deflate(boxConfig.margins.top), borderPaint);
+    canvas.drawRect(Rect.fromLTWH(0, 0, width, height), borderPaint);
     super.render(canvas);
+  }
+
+  @override
+  void update(double dt) {
+    if (latestSubject != text) {
+      overlayBox.text = "";
+    }
+    if (text.contains(latestInputText)) {
+      overlayBox.text = latestInputText;
+    } else {
+      latestInputText = overlayBox.text;
+    }
+
+    super.update(dt);
   }
 }
 
@@ -169,14 +191,14 @@ class MyTextBox2 extends TextBoxComponent {
           text: text,
           textRenderer:
               TextPaint(style: TextStyle(color: BasicPalette.black.color)),
+          align: Anchor.topLeft,
         );
 
   final borderPaint = Paint()..color = Colors.transparent;
 
   @override
   void render(Canvas canvas) {
-    Rect rect = Rect.fromLTWH(0, 0, width, height);
-    canvas.drawRect(rect.deflate(boxConfig.margins.top), borderPaint);
+    canvas.drawRect(Rect.fromLTWH(0, 0, width, height), borderPaint);
     super.render(canvas);
   }
 }
