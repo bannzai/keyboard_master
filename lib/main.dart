@@ -92,9 +92,10 @@ class KeyboardGame extends FlameGame {
 
   KeyboardGame(this.stream);
 
-  String text = "Hello, world";
-  late Player player = Player(text: text, subject: subject);
+  String latestText = "";
+  late Player player = Player(text: latestText, subject: subject);
   late MyTextBox textBox = MyTextBox(text: subject);
+  late MyTextBox2 overlayBox = MyTextBox2(text: latestText);
   int index = 0;
 
   String get subject => words[index];
@@ -102,7 +103,7 @@ class KeyboardGame extends FlameGame {
   @override
   Future<void> onLoad() async {
     subscription = stream.listen((event) {
-      text += event;
+      latestText += event;
     });
     add(
       player
@@ -117,18 +118,30 @@ class KeyboardGame extends FlameGame {
       ..height = 40
       ..anchor = Anchor.center);
 
+    add(overlayBox
+      ..position = Vector2(size[0] / 2, 100)
+      ..width = size[0] - 40
+      ..height = 40
+      ..anchor = Anchor.center);
+
     add(TimerComponent(
       period: 10,
       repeat: true,
-      onTick: () => index < words.length ? index += 1 : index = 0,
+      onTick: () => index < words.length - 1 ? index += 1 : index = 0,
     ));
   }
 
   @override
   void update(double dt) {
     super.update(dt);
-    player.text = text;
+    player.text = latestText;
     textBox.text = subject;
+
+    if (textBox.text.contains(latestText)) {
+      overlayBox.text = latestText;
+    } else {
+      latestText = overlayBox.text;
+    }
   }
 }
 
@@ -141,6 +154,24 @@ class MyTextBox extends TextBoxComponent {
             boxConfig: TextBoxConfig(timePerChar: 0.05));
 
   final borderPaint = Paint()..color = Colors.orange;
+
+  @override
+  void render(Canvas canvas) {
+    Rect rect = Rect.fromLTWH(0, 0, width, height);
+    canvas.drawRect(rect.deflate(boxConfig.margins.top), borderPaint);
+    super.render(canvas);
+  }
+}
+
+class MyTextBox2 extends TextBoxComponent {
+  MyTextBox2({required String text})
+      : super(
+          text: text,
+          textRenderer:
+              TextPaint(style: TextStyle(color: BasicPalette.black.color)),
+        );
+
+  final borderPaint = Paint()..color = Colors.transparent;
 
   @override
   void render(Canvas canvas) {
