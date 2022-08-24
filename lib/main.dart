@@ -181,13 +181,11 @@ class MyTextBox extends TextBoxComponent {
   void update(double dt) {
     if (latestSubject != text) {
       overlayBox.text = "";
+      latestSubject = text;
     }
     if (text.contains(latestInputText)) {
       overlayBox.text = latestInputText;
-    } else {
-      latestInputText = overlayBox.text;
     }
-
     super.update(dt);
   }
 }
